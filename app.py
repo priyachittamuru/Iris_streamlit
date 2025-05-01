@@ -141,7 +141,8 @@ if st.button("🔍 Predict Species", use_container_width=True):
         
         
         
-        # Flower ImageIRIS_IMAGES = {
+        # Flower Image
+    IRIS_IMAGES = {
     'Iris-setosa': [
         'https://upload.wikimedia.org/wikipedia/commons/1/11/Iris_setosa_3.jpg',  # Wikimedia
         'https://bsi.berkeley.edu/wp-content/uploads/2020/04/iris_setosa.jpg'  # UC Berkeley
