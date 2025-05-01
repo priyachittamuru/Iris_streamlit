@@ -3,7 +3,6 @@ import numpy as np
 import pickle
 from PIL import Image
 import requests
-import random
 from io import BytesIO
 
 # ---- Configuration ----
@@ -142,35 +141,24 @@ if st.button("🔍 Predict Species", use_container_width=True):
         
         
         
-# Reliable image URLs
-IRIS_IMAGES = {
-    'Iris-setosa': [
-        'https://upload.wikimedia.org/wikipedia/commons/1/11/Iris_setosa_3.jpg',
-        'https://bsi.berkeley.edu/wp-content/uploads/2020/04/iris_setosa.jpg'
-    ],
-    'Iris-versicolor': [
-        'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg',
-        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_versicolor/iris_versicolor_4.jpg'
-    ],
-    'Iris-virginica': [
-        'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg',
-        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_virginica/iris_virginica_10.jpg'
-    ]
-}
+# Flower Image
+        try:
+            img_url = {
+                'Iris-setosa': 'https://upload.wikimedia.org/wikipedia/commons/1/11/Iris_setosa_3.jpg',
+                'Iris-versicolor': 'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg',
+                'Iris-virginica': 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg'
+            }[species]
+            response = requests.get(img_url)
+            img = Image.open(BytesIO(response.content))
+            
+            st.markdown("---")
+            col1, col2, col3 = st.columns([1,2,1])
+            with col2:
+                st.image(img, caption=f"{species.split('-')[1]} Sample", width=300)
+                st.markdown(f"[Source Image]({img_url})")
+        except:
+            st.warning("Couldn't load flower image")
 
-def display_iris_image(species):
-    try:
-        img_url = random.choice(IRIS_IMAGES[species])
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(img_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        img = Image.open(BytesIO(response.content))
-        st.image(img, 
-                caption=f"{species.split('-')[1].title()} (Image Source: {img_url.split('/')[2]})",
-                width=350)
-    except Exception as e:
-        st.warning("Couldn't load flower image. Using default illustration.")
-        st.image("default_iris.jpg", width=300)
 
 # ---- Sidebar ----
 with st.sidebar:
