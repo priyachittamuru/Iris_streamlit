@@ -141,43 +141,35 @@ if st.button("🔍 Predict Species", use_container_width=True):
         
         
         
-        # Flower Image
-    IRIS_IMAGES = {
+# Reliable image URLs
+IRIS_IMAGES = {
     'Iris-setosa': [
-        'https://upload.wikimedia.org/wikipedia/commons/1/11/Iris_setosa_3.jpg',  # Wikimedia
-        'https://bsi.berkeley.edu/wp-content/uploads/2020/04/iris_setosa.jpg'  # UC Berkeley
+        'https://upload.wikimedia.org/wikipedia/commons/1/11/Iris_setosa_3.jpg',
+        'https://bsi.berkeley.edu/wp-content/uploads/2020/04/iris_setosa.jpg'
     ],
     'Iris-versicolor': [
         'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg',
-        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_versicolor/iris_versicolor_4.jpg'  # USDA
+        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_versicolor/iris_versicolor_4.jpg'
     ],
     'Iris-virginica': [
         'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg',
-        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_virginica/iris_virginica_10.jpg'  # USDA
+        'https://www.fs.usda.gov/wildflowers/beauty/iris/Blue_Flag/images/iris_virginica/iris_virginica_10.jpg'
     ]
 }
 
 def display_iris_image(species):
-    """Displays high-quality iris images with fallback handling"""
     try:
-        # Select a random image from available options
         img_url = random.choice(IRIS_IMAGES[species])
-        
-        # Fetch with timeout and headers to mimic browser request
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(img_url, headers=headers, timeout=10)
         response.raise_for_status()
-        
         img = Image.open(BytesIO(response.content))
         st.image(img, 
-               caption=f"{species.split('-')[1].title()} (Image Source: {img_url.split('/')[2]})",
-               width=350,
-               use_column_width='auto')
-               
+                caption=f"{species.split('-')[1].title()} (Image Source: {img_url.split('/')[2]})",
+                width=350)
     except Exception as e:
-        st.warning("Showing default illustration instead of live image")
-        # Local fallback image
-        st.image("default_iris.jpg", width=300)  # Include a local image file as backup
+        st.warning("Couldn't load flower image. Using default illustration.")
+        st.image("default_iris.jpg", width=300)
 
 # ---- Sidebar ----
 with st.sidebar:
