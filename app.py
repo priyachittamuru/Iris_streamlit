@@ -11,29 +11,26 @@ with open('random_forest_model.pkl', 'rb') as f:
 
 # Configuration
 st.set_page_config(page_title="IRIS CLASSIFIER", layout="centered")
-st.title("🔍 IRIS SPECIES PREDICTION")
+st.title("🌿 IRIS FLOWER CLASSIFIER")
 st.markdown("""
-*Uses decision rules from Random Forest analysis*  
-**Key splits:**  
-- Setosa: Petal Width ≤ 0.75cm  
-- Versicolor: Petal Width ≤ 1.55cm  
-- Virginica: Petal Width > 1.55cm + Length > 4.9cm  
+*Predicts iris species using Random Forest model*  
+**Key features:**  
+- Petal Width is the most important feature  
+- Sepal measurements help with borderline cases  
 """)
 
 # Input Section
-with st.expander("📏 INPUT MEASUREMENTS", expanded=True):
+with st.expander("📏 ENTER FLOWER MEASUREMENTS", expanded=True):
     col1, col2 = st.columns(2)
     with col1:
-        petal_length = st.slider("Petal Length (cm)", 1.0, 7.0, 4.0, 0.1,
-                               help="Critical for virginica identification")
         sepal_length = st.slider("Sepal Length (cm)", 4.0, 8.0, 5.1, 0.1)
-    with col2:
-        petal_width = st.slider("Petal Width (cm)", 0.1, 2.5, 1.0, 0.1,
-                              help="Main separator for setosa/versicolor")
         sepal_width = st.slider("Sepal Width (cm)", 2.0, 4.5, 3.5, 0.1)
+    with col2:
+        petal_length = st.slider("Petal Length (cm)", 1.0, 7.0, 4.0, 0.1)
+        petal_width = st.slider("Petal Width (cm)", 0.1, 2.5, 1.0, 0.1)
 
 # Prediction Logic
-if st.button("🌼 IDENTIFY SPECIES"):
+if st.button("🔍 PREDICT SPECIES"):
     input_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
     pred = model.predict(input_data)[0]
     species = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica'][pred]
@@ -41,20 +38,16 @@ if st.button("🌼 IDENTIFY SPECIES"):
     # Display Results
     st.success(f"## PREDICTION: {species.split('-')[1].upper()}")
     
-    # Decision Path Visualization
-    st.markdown("### Decision Path:")
-    if petal_width <= 0.75:
-        st.markdown("- ✅ **Petal Width ≤ 0.75cm** → Pure Setosa (100% accurate)")
+    # Decision Rules
+    st.markdown("### How the model decided:")
+    if petal_width <= 0.8:
+        st.markdown("- 🌸 **Petal Width ≤ 0.8cm** → Strong Setosa indicator")
+    elif petal_width <= 1.7:
+        st.markdown("- 🌺 **Petal Width 0.8-1.7cm** → Likely Versicolor")
     else:
-        st.markdown("- ❌ Petal Width > 0.75cm")
-        if petal_width <= 1.55:
-            st.markdown("- ✅ **Petal Width ≤ 1.55cm** → Versicolor (82.4% accurate)")
-        else:
-            st.markdown("- ❌ Petal Width > 1.55cm")
-            if petal_length <= 4.9:
-                st.markdown("- ✅ **Petal Length ≤ 4.9cm** → Versicolor (98.1% accurate)")
-            else:
-                st.markdown("- ✅ **Petal Length > 4.9cm** → Virginica (93.3% accurate)")
+        st.markdown("- 🌹 **Petal Width > 1.7cm** → Virginica territory")
+        if petal_length > 4.8:
+            st.markdown("- 📏 **Long petals (>4.8cm)** confirms Virginica")
     
     # Show flower image
     try:
@@ -63,23 +56,21 @@ if st.button("🌼 IDENTIFY SPECIES"):
             'Iris-versicolor': 'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg',
             'Iris-virginica': 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg'
         }[species]
-        img = Image.open(BytesIO(requests.get(img_url).content)
+        response = requests.get(img_url)
+        img = Image.open(BytesIO(response.content))
         st.image(img, width=300)
     except:
-        st.warning("Image unavailable")
+        st.warning("Couldn't load flower image")
 
-# Model Insights
-with st.expander("💡 MODEL INSIGHTS"):
+# Model Information
+with st.expander("ℹ️ ABOUT THE MODEL"):
     st.markdown("""
-    **Key Splits Found in Decision Tree:**
-    - Setosa perfectly separated at Petal Width ≤ 0.75cm
-    - Versicolor mostly separated at Petal Width ≤ 1.55cm
-    - Virginica requires both:
-      - Petal Width > 1.55cm 
-      - Petal Length > 4.9cm
+    **Model Details:**
+    - Type: Random Forest Classifier
+    - Accuracy: ~96% on test data
+    - Key Features: Petal measurements most significant
     
-    **Borderline Cases:**
-    - 3 Versicolor misclassified when 1.55 < Width ≤ 1.65cm
-    - 1 Virginica misclassified when Length ≤ 4.9cm
+    **Common Confusions:**
+    - Large Versicolor vs small Virginica flowers
+    - Borderline cases around 1.7cm petal width
     """)
-
